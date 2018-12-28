@@ -7,54 +7,54 @@
 #
 # Requires the `git-info` zmodule to be included in the .zimrc file.
 
-# Global variables
-function {
-  COLOR_ROOT="%F{red}"
-  COLOR_USER="%F{cyan}"
-  COLOR_NORMAL="%F{white}"
-  COLOR_ERROR="%F{red}"
+prompt_magicmace_help () {
+  cat <<EOH
+This theme is color-scheme-able. You can customize it using:
 
-  if (( ${EUID} )); then
-    COLOR_USER_LEVEL=${COLOR_USER}
-  else
-    COLOR_USER_LEVEL=${COLOR_ROOT}
+    prompt magicmace [user_color] [root_color] [normal_color] [error_color]
+
+The default values are cyan, red, white, and red.
+EOH
+}
+
+prompt_magicmace_main() {
+  RETVAL=${?}
+  local mace_color=${1}
+  local normal_color=${2}
+  local error_color=${3}
+
+  # Status: Was there an error? Are there background jobs? Ranger spawned shell?
+  local symbols=''
+  (( RETVAL )) && symbols+="${error_color}${RETVAL}${normal_color}" # ${?} for error.
+  (( $(jobs -l | wc -l) )) && symbols+='b' # 'b' for background.
+  (( RANGER_LEVEL )) && symbols+='r' # 'r' for... you guessed it!
+  [[ -n ${symbols} ]] && print -n "─${normal_color}${symbols}${mace_color}─"
+
+  # Pwd: current working directory.
+  local current_dir="${PWD/#${HOME}/~}"
+  if [[ ${current_dir} != '~' ]]; then
+    current_dir="${${(@j:/:M)${(@s:/:)current_dir:h}#?}%/}/${current_dir:t}"
   fi
-}
-
-# Status:
-# - was there an error?
-# - are there background jobs?
-# - are we in a ranger session?
-prompt_magicmace_status() {
-  local symbols=""
-
-  (( ${RETVAL} )) && symbols+="${COLOR_ERROR}${RETVAL}${COLOR_NORMAL}" # $? for error.
-  (( $(jobs -l | wc -l) > 0 )) && symbols+='b' # 'b' for background.
-  (( ${RANGER_LEVEL} )) && symbols+='r' # 'r' for... you guessed it!
-
-  [[ -n ${symbols} ]] && print -n "─${COLOR_NORMAL}${symbols}${COLOR_USER_LEVEL}─"
-}
-
-prompt_magicmace_git() {
-  [[ -n ${git_info} ]] && print -n "${(e)git_info[prompt]}"
+  print -n "[${normal_color}${current_dir}${mace_color}]"
 }
 
 prompt_magicmace_precmd() {
-  # While it would be apt to have this as a local variable in prompt_status(),
-  # $? (returned value) and ${(%):-%?} ("The return status of the last command
-  # executed just before the prompt") both change before executing the function.
-  # Is this perhaps because prompt_status _is_ here?
-  # We could also just set $? as an argument, and thus get our nifty local variable,
-  # but that's stretching it, and makes the code harder to read.
-  RETVAL=$?
   (( ${+functions[git-info]} )) && git-info
 }
 
 prompt_magicmace_setup() {
   autoload -Uz add-zsh-hook && add-zsh-hook precmd prompt_magicmace_precmd
-  autoload -Uz colors && colors
 
   prompt_opts=(cr percent sp subst)
+
+  local mace_color
+  if (( EUID )); then
+    mace_color="%F{${1:-cyan}}"
+  else
+    mace_color="%F{${2:-red}}"
+  fi
+  local normal_color="%F{${3:-white}}"
+  local error_color="%F{${4:-red}}"
 
   zstyle ':zim:git-info:branch' format '%b'
   zstyle ':zim:git-info:commit' format '%c...'
@@ -62,11 +62,20 @@ prompt_magicmace_setup() {
   zstyle ':zim:git-info:ahead' format '↑'
   zstyle ':zim:git-info:behind' format '↓'
   zstyle ':zim:git-info:keys' format \
-    'prompt' '─[${COLOR_NORMAL}%b%c%D%A%B${COLOR_USER_LEVEL}]'
+    'prompt' "─[${normal_color}%b%c%D%A%B${mace_color}]"
 
-  # Call git directly, ignoring aliases under the same name.
-  PS1='${COLOR_USER_LEVEL}$(prompt_magicmace_status)[${COLOR_NORMAL}$(short_pwd)${COLOR_USER_LEVEL}]$(prompt_magicmace_git)── ─%f '
+  PS1="${mace_color}\$(prompt_magicmace_main ${mace_color} ${normal_color} ${error_color})\${(e)git_info[prompt]}── ─%f "
   RPS1=''
+}
+
+prompt_magicmace_preview () {
+  if (( # )); then
+    prompt_preview_theme magicmace "${@}"
+  else
+    prompt_preview_theme magicmace
+    print
+    prompt_preview_theme magicmace 15 3 14
+  fi
 }
 
 prompt_magicmace_setup "${@}"
