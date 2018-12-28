@@ -3,7 +3,7 @@
 # magicmace theme
 # Ideas and code taken from:
 #   xero's zsh prompt <http://code.xero.nu/dotfiles>
-#   eriner's eriner prompt <https://github.com/zimfw/zimfw/blob/master/modules/prompt/themes/eriner.zsh-theme>
+#   eriner's eriner prompt <https://github.com/zimfw/eriner>
 #
 # Requires the `git-info` zmodule to be included in the .zimrc file.
 
@@ -13,7 +13,12 @@ This theme is color-scheme-able. You can customize it using:
 
     prompt magicmace [user_color] [root_color] [normal_color] [error_color]
 
-The default values are cyan, red, white, and red.
+The parameters with their default values are the following:
+
+  1. Non-root user mace color: cyan
+  2. Root user mace color: red
+  3. Normal text color: white
+  4. Error text color: red
 EOH
 }
 
