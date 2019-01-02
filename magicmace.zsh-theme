@@ -28,6 +28,7 @@ prompt_magicmace_main() {
   (( RETVAL )) && symbols+="${error_color}${RETVAL}${normal_color}" # ${?} for error.
   (( $(jobs -l | wc -l) )) && symbols+='b' # 'b' for background.
   (( RANGER_LEVEL )) && symbols+='r' # 'r' for... you guessed it!
+  [[ -n ${VIRTUAL_ENV} ]] && symbols+='v'
   [[ -n ${symbols} ]] && print -n "─${normal_color}${symbols}${mace_color}─"
 
   # Pwd: current working directory.
@@ -43,6 +44,7 @@ prompt_magicmace_precmd() {
 }
 
 prompt_magicmace_setup() {
+  VIRTUAL_ENV_DISABLE_PROMPT=1
   autoload -Uz add-zsh-hook && add-zsh-hook precmd prompt_magicmace_precmd
 
   prompt_opts=(cr percent sp subst)
