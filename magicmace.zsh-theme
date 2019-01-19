@@ -7,82 +7,50 @@
 #
 # Requires the `git-info` zmodule to be included in the .zimrc file.
 
-prompt_magicmace_help () {
-  cat <<EOH
-This theme is color-scheme-able. You can customize it using:
-
-    prompt magicmace [user_color] [root_color] [normal_color] [error_color]
-
-The parameters with their default values are the following:
-
-  1. Non-root user mace color: cyan
-  2. Root user mace color: red
-  3. Normal text color: white
-  4. Error text color: red
-EOH
-}
-
-prompt_magicmace_main() {
+_prompt_magicmace_main() {
   RETVAL=${?}
-  local mace_color=${1}
-  local normal_color=${2}
-  local error_color=${3}
+  local mace_color="%(!.${COLOR_ROOT}.${COLOR_USER})"
 
   # Status: Was there an error? Are there background jobs? Ranger spawned shell?
+  # Python venv activated?
   local symbols=''
-  (( RETVAL )) && symbols+="${error_color}${RETVAL}${normal_color}" # ${?} for error.
+  (( RETVAL )) && symbols+="%F{${COLOR_ERROR}}${RETVAL}%F{${COLOR_NORMAL}}" # ${?} for error.
   (( $(jobs -l | wc -l) )) && symbols+='b' # 'b' for background.
   (( RANGER_LEVEL )) && symbols+='r' # 'r' for... you guessed it!
   [[ -n ${VIRTUAL_ENV} ]] && symbols+='v'
-  [[ -n ${symbols} ]] && print -n "─${normal_color}${symbols}${mace_color}─"
+  [[ -n ${symbols} ]] && print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${mace_color}}─"
 
   # Pwd: current working directory.
   local current_dir="${PWD/#${HOME}/~}"
   if [[ ${current_dir} != '~' ]]; then
     current_dir="${${(@j:/:M)${(@s:/:)current_dir:h}#?}%/}/${current_dir:t}"
   fi
-  print -n "[${normal_color}${current_dir}${mace_color}]"
+  print -n "[%F{${COLOR_NORMAL}}${current_dir}%F{${mace_color}}]"
 }
 
-prompt_magicmace_precmd() {
-  (( ${+functions[git-info]} )) && git-info
-}
-
-prompt_magicmace_setup() {
+() {
+  : ${COLOR_ROOT=red}
+  : ${COLOR_USER=cyan}
+  : ${COLOR_NORMAL=white}
+  : ${COLOR_ERROR=red}
   VIRTUAL_ENV_DISABLE_PROMPT=1
-  autoload -Uz add-zsh-hook && add-zsh-hook precmd prompt_magicmace_precmd
+  local mace_color='%(!.${COLOR_ROOT}.${COLOR_USER})'
 
-  prompt_opts=(cr percent sp subst)
+  setopt nopromptbang promptcr promptpercent promptsp promptsubst
 
-  local mace_color
-  if (( EUID )); then
-    mace_color="%F{${1:-cyan}}"
-  else
-    mace_color="%F{${2:-red}}"
+  typeset -gA git_info
+  if (( ${+functions[git-info]} )); then
+    zstyle ':zim:git-info:branch' format '%b'
+    zstyle ':zim:git-info:commit' format '%c...'
+    zstyle ':zim:git-info:dirty' format '*'
+    zstyle ':zim:git-info:ahead' format '↑'
+    zstyle ':zim:git-info:behind' format '↓'
+    zstyle ':zim:git-info:keys' format \
+        'prompt' "─[%F{\${COLOR_NORMAL}}%b%c%D%A%B%F{%${mace_color}}]"
+
+    autoload -Uz add-zsh-hook && add-zsh-hook precmd git-info
   fi
-  local normal_color="%F{${3:-white}}"
-  local error_color="%F{${4:-red}}"
 
-  zstyle ':zim:git-info:branch' format '%b'
-  zstyle ':zim:git-info:commit' format '%c...'
-  zstyle ':zim:git-info:dirty' format '*'
-  zstyle ':zim:git-info:ahead' format '↑'
-  zstyle ':zim:git-info:behind' format '↓'
-  zstyle ':zim:git-info:keys' format \
-    'prompt' "─[${normal_color}%b%c%D%A%B${mace_color}]"
-
-  PS1="${mace_color}\$(prompt_magicmace_main ${mace_color} ${normal_color} ${error_color})\${(e)git_info[prompt]}── ─%f "
-  RPS1=''
+  PS1="%F{${mace_color}}\$(_prompt_magicmace_main)\${(e)git_info[prompt]}── ─%f "
+  unset RPS1
 }
-
-prompt_magicmace_preview () {
-  if (( # )); then
-    prompt_preview_theme magicmace "${@}"
-  else
-    prompt_preview_theme magicmace
-    print
-    prompt_preview_theme magicmace 15 3 14
-  fi
-}
-
-prompt_magicmace_setup "${@}"
