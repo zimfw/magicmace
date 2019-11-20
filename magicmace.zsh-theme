@@ -9,7 +9,8 @@
 
 _prompt_magicmace_main() {
   RETVAL=${?}
-  local mace_color="%(!.${COLOR_ROOT}.${COLOR_USER})"
+  local mace_color="${(%):-%(!.${COLOR_ROOT}.${COLOR_USER})}"
+  print -n "%F{${mace_color}}"
 
   # Status: Was there an error? Are there background jobs? Ranger spawned shell?
   # Python venv activated?
@@ -28,29 +29,26 @@ _prompt_magicmace_main() {
   print -n "[%F{${COLOR_NORMAL}}${current_dir}%F{${mace_color}}]"
 }
 
-() {
-  : ${COLOR_ROOT=red}
-  : ${COLOR_USER=cyan}
-  : ${COLOR_NORMAL=white}
-  : ${COLOR_ERROR=red}
-  VIRTUAL_ENV_DISABLE_PROMPT=1
-  local mace_color='%(!.${COLOR_ROOT}.${COLOR_USER})'
+: ${COLOR_ROOT=red}
+: ${COLOR_USER=cyan}
+: ${COLOR_NORMAL=white}
+: ${COLOR_ERROR=red}
+VIRTUAL_ENV_DISABLE_PROMPT=1
 
-  setopt nopromptbang promptcr promptpercent promptsp promptsubst
+setopt nopromptbang prompt{cr,percent,sp,subst}
 
-  typeset -gA git_info
-  if (( ${+functions[git-info]} )); then
-    zstyle ':zim:git-info:branch' format '%b'
-    zstyle ':zim:git-info:commit' format '%c...'
-    zstyle ':zim:git-info:dirty' format '*'
-    zstyle ':zim:git-info:ahead' format '↑'
-    zstyle ':zim:git-info:behind' format '↓'
-    zstyle ':zim:git-info:keys' format \
-        'prompt' "─[%F{\${COLOR_NORMAL}}%b%c%D%A%B%F{%${mace_color}}]"
+typeset -gA git_info
+if (( ${+functions[git-info]} )); then
+  zstyle ':zim:git-info:branch' format '%b'
+  zstyle ':zim:git-info:commit' format '%c...'
+  zstyle ':zim:git-info:dirty' format '*'
+  zstyle ':zim:git-info:ahead' format '↑'
+  zstyle ':zim:git-info:behind' format '↓'
+  zstyle ':zim:git-info:keys' format \
+      'prompt' '─[%F{${COLOR_NORMAL}}%b%c%D%A%B%F{%%(!.${COLOR_ROOT}.${COLOR_USER})}]'
 
-    autoload -Uz add-zsh-hook && add-zsh-hook precmd git-info
-  fi
+  autoload -Uz add-zsh-hook && add-zsh-hook precmd git-info
+fi
 
-  PS1="%F{${mace_color}}\$(_prompt_magicmace_main)\${(e)git_info[prompt]}── ─%f "
-  unset RPS1
-}
+PS1='$(_prompt_magicmace_main)${(e)git_info[prompt]}── ─%f '
+unset RPS1
