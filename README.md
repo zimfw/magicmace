@@ -31,7 +31,7 @@ variable is not defined, the respective default value is used.
 | COLOR_ROOT   | Root-user mace color     | red           |
 | COLOR_USER   | Non-root-user mace color | cyan          |
 | COLOR_NORMAL | Normal text color        | white         |
-| ERROR_COLOR  | Error text color         | red           |
+| COLOR_ERROR  | Error text color         | red           |
 
 Requirements
 ------------
