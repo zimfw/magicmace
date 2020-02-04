@@ -15,11 +15,11 @@ _prompt_magicmace_main() {
   # Status: Was there an error? Are there background jobs? Ranger spawned shell?
   # Python venv activated?
   local symbols=''
-  (( RETVAL )) && symbols+="%F{${COLOR_ERROR}}${RETVAL}%F{${COLOR_NORMAL}}" # ${?} for error.
-  (( $(jobs -l | wc -l) )) && symbols+='b' # 'b' for background.
-  (( RANGER_LEVEL )) && symbols+='r' # 'r' for... you guessed it!
-  [[ -n ${VIRTUAL_ENV} ]] && symbols+='v'
-  [[ -n ${symbols} ]] && print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${mace_color}}─"
+  if (( RETVAL )) symbols+="%F{${COLOR_ERROR}}${RETVAL}%F{${COLOR_NORMAL}}" # ${?} for error.
+  if (( $(jobs -l | wc -l) )) symbols+='b' # 'b' for background.
+  if (( RANGER_LEVEL )) symbols+='r' # 'r' for... you guessed it!
+  if [[ -n ${VIRTUAL_ENV} ]] symbols+='v'
+  if [[ -n ${symbols} ]] print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${mace_color}}─"
 
   # Pwd: current working directory.
   local current_dir="${PWD/#${HOME}/~}"
