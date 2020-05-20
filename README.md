@@ -3,7 +3,7 @@ magicmace
 
 Ideas and code taken from [xero's zsh prompt] and [eriner's prompt].
 
-![magicmace theme]
+<img width="706" src="https://zimfw.github.io/images/prompts/magicmace@2.png">
 
 What does it show?
 ------------------
@@ -40,7 +40,6 @@ Requires Zim's [git-info] module to show git information.
 
 [xero's zsh prompt]: http://code.xero.nu/dotfiles
 [eriner's prompt]: https://github.com/zimfw/eriner
-[magicmace theme]: https://zimfw.github.io/images/prompts/magicmace.png
 [ranger]: https://github.com/ranger/ranger
 [venv]: https://docs.python.org/3/library/venv.html
 ['detached HEAD' state]: http://gitfaq.org/articles/what-is-a-detached-head.html
