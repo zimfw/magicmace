@@ -22,7 +22,7 @@ _prompt_magicmace_main() {
   if [[ -n ${symbols} ]] print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${mace_color}}─"
 
   # Pwd: current working directory.
-  local current_dir="${PWD/#${HOME}/~}"
+  local current_dir=${(%):-%~}
   if [[ ${current_dir} != '~' ]]; then
     current_dir="${${(@j:/:M)${(@s:/:)current_dir:h}#?}%/}/${current_dir:t}"
   fi
