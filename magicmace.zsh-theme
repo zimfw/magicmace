@@ -5,13 +5,12 @@
 #   xero's zsh prompt <http://code.xero.nu/dotfiles>
 #   eriner's eriner prompt <https://github.com/zimfw/eriner>
 #
-# Requires the `git-info` zmodule to be included in the .zimrc file.
+# Requires the `prompt-pwd` and `git-info` zmodules to be included in the .zimrc file.
 
 _prompt_magicmace_main() {
+  # This runs in a subshell
   RETVAL=${?}
-  local mace_color="${(%):-%(!.${COLOR_ROOT}.${COLOR_USER})}"
-  print -n "%F{${mace_color}}"
-
+  local -r mace_color='%(!.${COLOR_ROOT}.${COLOR_USER})'
   # Status: Was there an error? Are there background jobs? Ranger spawned shell?
   # Python venv activated?
   local symbols=''
@@ -19,23 +18,20 @@ _prompt_magicmace_main() {
   if (( $(jobs -l | wc -l) )) symbols+='b' # 'b' for background.
   if (( RANGER_LEVEL )) symbols+='r' # 'r' for... you guessed it!
   if [[ -n ${VIRTUAL_ENV} ]] symbols+='v'
-  if [[ -n ${symbols} ]] print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${mace_color}}─"
-
-  # Pwd: current working directory.
-  local current_dir=${(%):-%~}
-  if [[ ${current_dir} != '~' ]]; then
-    current_dir="${${(@j:/:M)${(@s:/:)current_dir:h}#?}%/}/${current_dir:t}"
-  fi
-  print -n "[%F{${COLOR_NORMAL}}${current_dir}%F{${mace_color}}]"
+  if [[ -n ${symbols} ]] print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${(e)mace_color}}─"
 }
 
-: ${COLOR_ROOT=red}
-: ${COLOR_USER=cyan}
-: ${COLOR_NORMAL=white}
-: ${COLOR_ERROR=red}
-VIRTUAL_ENV_DISABLE_PROMPT=1
+if (( ! ${+COLOR_ROOT} )) typeset -g COLOR_ROOT=red
+if (( ! ${+COLOR_USER} )) typeset -g COLOR_USER=cyan
+if (( ! ${+COLOR_NORMAL} )) typeset -g COLOR_NORMAL=white
+if (( ! ${+COLOR_ERROR} )) typeset -g COLOR_ERROR=red
+typeset -g VIRTUAL_ENV_DISABLE_PROMPT=1
 
 setopt nopromptbang prompt{cr,percent,sp,subst}
+
+local mace_color='%(!.${COLOR_ROOT}.${COLOR_USER})'
+
+zstyle ':zim:prompt-pwd:fish-style' dir-length 1
 
 typeset -gA git_info
 if (( ${+functions[git-info]} )); then
@@ -45,10 +41,12 @@ if (( ${+functions[git-info]} )); then
   zstyle ':zim:git-info:ahead' format '↑'
   zstyle ':zim:git-info:behind' format '↓'
   zstyle ':zim:git-info:keys' format \
-      'prompt' '─[%F{${COLOR_NORMAL}}%b%c%D%A%B%F{%%(!.${COLOR_ROOT}.${COLOR_USER})}]'
+      'prompt' "─[%F{\${COLOR_NORMAL}}%b%c%D%A%B%F{%${mace_color}}]"
 
   autoload -Uz add-zsh-hook && add-zsh-hook precmd git-info
 fi
 
-PS1='$(_prompt_magicmace_main)${(e)git_info[prompt]}── ─%f '
+PS1="%F{${mace_color}}\$(_prompt_magicmace_main)[%F{\${COLOR_NORMAL}}\$(prompt-pwd)%F{${mace_color}}]\${(e)git_info[prompt]}── ─%f "
 unset RPS1
+
+unset mace_color
