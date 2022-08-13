@@ -65,11 +65,11 @@ Requirements
 Requires Zim's [prompt-pwd] module to show the current working directory, and
 [git-info] to show git information.
 
-[xero's zsh prompt]: http://code.xero.nu/dotfiles
+[xero's zsh prompt]: https://github.com/xero/dotfiles
 [eriner's prompt]: https://github.com/zimfw/eriner
 [ranger]: https://github.com/ranger/ranger
 [venv]: https://docs.python.org/3/library/venv.html
-['detached HEAD' state]: http://gitfaq.org/articles/what-is-a-detached-head.html
+['detached HEAD' state]: https://git-scm.com/docs/git-checkout#_detached_head
 [prompt-pwd module settings]: https://github.com/zimfw/prompt-pwd/blob/master/README.md#settings
 [git-info documentation]: https://github.com/zimfw/git-info/blob/master/README.md#settings
 [prompt-pwd]: https://github.com/zimfw/prompt-pwd
