@@ -14,7 +14,7 @@ _prompt_magicmace_status() {
   # Python venv activated?
   local symbols=
   if (( RETVAL )) symbols+="%F{${COLOR_ERROR}}${RETVAL}%F{${COLOR_NORMAL}}" # ${?} for error.
-  if (( $(jobs -l | wc -l) )) symbols+=b # b for background.
+  if (( ${#jobstates} )) symbols+=b # b for background.
   if (( RANGER_LEVEL )) symbols+=r # r for... you guessed it!
   if [[ -n ${VIRTUAL_ENV} ]] symbols+=v
   if [[ -n ${symbols} ]] print -n "─%F{${COLOR_NORMAL}}${symbols}%F{${USER_LEVEL}}─"
