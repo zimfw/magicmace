@@ -57,13 +57,15 @@ Use the following command to override a git-info context format:
 For detailed information about these and other git-info settings, check the
 [git-info documentation].
 
-These advanced settings must be overridden after the theme is initialized.
+These advanced settings must be defined at the bottom of your `~/.zshrc`, after
+the modules are initialized with `source ${ZIM_HOME}/init.zsh`, in order to
+override the theme defaults.
 
 Requirements
 ------------
 
-Requires Zim's [prompt-pwd] module to show the current working directory, and
-[git-info] to show git information.
+Requires Zim Framework's [prompt-pwd] module to show the current working
+directory, and [git-info] to show git information.
 
 [xero's zsh prompt]: https://github.com/xero/dotfiles
 [eriner's prompt]: https://github.com/zimfw/eriner
